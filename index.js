@@ -46,37 +46,6 @@ async function run(){
             res.send(result);
 
         })
-
-        app.get('/papa',async (req,res)=>{
-           const query = {};
-           const cursor = userCollection.find(query);
-           const user = await cursor.toArray();
-           res.send(user);
-        })
-        app.post('/papa',async (req,res)=>{
-            const newUser = req.body;
-            console.log('request',newUser)
-            const result = await userCollection.insertOne(newUser);      
-            res.send(result)
-        })
-        app.delete('/papa/:id',async (req,res)=>{
-            const id = req.params.id
-            const query = {_id: ObjectId(id)};
-            const result = await userCollection.deleteOne(query);
-            res.send(result);
-        })
-        app.get('/papa/:id',async (req,res)=>{
-            const id = req.params.id
-            const query = {_id: ObjectId(id)};
-            const result = await userCollection.findOne(query);
-            res.send(result);
-        })
-        app.get('/papa/:id', (req,res)=>{
-            console.log(req.params.id);
-            res.send('i am papas id')
-        })
-        
-
     }
     finally{
 
