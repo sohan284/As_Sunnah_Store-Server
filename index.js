@@ -18,6 +18,7 @@ async function run(){
         await client.connect();
         const productCollection = client.db('as_sunnah').collection('products');
         const userCollection = client.db('as_sunnah').collection('users');
+        const cartCollection = client.db('as_sunnah').collection('cart');
 
         app.get('/product',async(req,res)=>{
             const query = {};
@@ -46,6 +47,50 @@ async function run(){
             res.send(result);
 
         })
+        app.get('/cart',async (req,res)=>{
+            const query = {};
+            const cursor = cartCollection.find(query);
+            const cart = await cursor.toArray();
+            res.send(cart);
+         })
+         
+        app.post('/cart',async (req,res)=>{
+            const newCart = req.body;
+            console.log(req.body);
+            const result = await cartCollection.insertOne(newCart);
+            res.send(result);
+        })
+
+        app.get('/papa',async (req,res)=>{
+           const query = {};
+           const cursor = userCollection.find(query);
+           const user = await cursor.toArray();
+           res.send(user);
+        })
+        app.post('/papa',async (req,res)=>{
+            const newUser = req.body;
+            console.log('request',newUser)
+            const result = await userCollection.insertOne(newUser);      
+            res.send(result)
+        })
+        app.delete('/papa/:id',async (req,res)=>{
+            const id = req.params.id
+            const query = {_id: ObjectId(id)};
+            const result = await userCollection.deleteOne(query);
+            res.send(result);
+        })
+        app.get('/papa/:id',async (req,res)=>{
+            const id = req.params.id
+            const query = {_id: ObjectId(id)};
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        })
+        app.get('/papa/:id', (req,res)=>{
+            console.log(req.params.id);
+            res.send('i am papas id')
+        })
+        
+
     }
     finally{
 
