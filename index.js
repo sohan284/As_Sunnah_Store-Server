@@ -39,12 +39,11 @@ async function run(){
             const options = {upsert:true};
             const updatedDoc = {
                 $set: {
-                    quantity: updateQuantity.availableQuantity
+                 quantity: updateQuantity.availableQuantity
                 }
             };
             const result = await productCollection.updateOne(filter,updatedDoc,options);
             res.send(result);
-
         })
         app.get('/cart',async (req,res)=>{
             const query = {};  
@@ -53,25 +52,28 @@ async function run(){
             res.send(cart);
          })
          app.post('/cart',async (req,res)=>{
-            const newCart = req.body;
-            const result = await cartCollection.insertOne(newCart);
+            const cart = req.body;
+            console.log(cart)
+            const result = await cartCollection.insertOne(cart);
             res.send(result);
         })
-         app.get('/cart/:id',async(req,res)=>{
-            const id = req.params.id;
-            const query = {_id: id};
-            const cart = await cartCollection.findOne(query);
-            console.log(cart)
-            res.send(cart);
+         app.get('/cart/:mail',async(req,res)=>{
+            const email = req?.params?.mail;
+            console.log(email)
+            const query = { user: email };
+            const cursor =cartCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
         })
-
         app.delete('/cart/:id',async (req,res)=>{
             const _id = req.params.id
             const query = {_id: _id};
             const result = await cartCollection.deleteOne(query);
-            console.log(result);
             res.send(result);
         })
+       
+
+
         app.get('/user',async (req,res)=>{
             const query = {};
             const cursor = userCollection.find(query);
