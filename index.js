@@ -48,8 +48,14 @@ async function run(){
             const newProduct = req.body;
             console.log(newProduct)
             const result = await productCollection.insertOne(newProduct);
-            // res.send(result);
+            res.send(result);
         });
+        app.delete('/product/:id',async (req,res)=>{
+            const _id = req.params.id
+            const query = {_id : ObjectId(_id)};
+            const result = await productCollection.deleteOne(query);
+            res.send(result);
+        }) 
         app.get('/product/:id',async(req,res)=>{
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
@@ -58,13 +64,27 @@ async function run(){
         })
         app.put('/product/:id',async(req,res)=>{
             const id = req.params.id;
-            const updateQuantity = req.body;
+            console.log(req.body)
+            const data = req.body;
             const filter = {_id: ObjectId(id)};
             const options = {upsert:true};
             const updatedDoc = {
                 $set: {
-                 quantity: updateQuantity.availableQuantity
+                    quantity: data.availableQuantity,
                 }
+  
+            };
+            const result = await productCollection.updateOne(filter,updatedDoc,options);
+            res.send(result);
+        })
+        app.put('/product/manage/:id',async(req,res)=>{
+            const id = req.params.id;
+            console.log(req.body)
+            const data = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = {upsert:true};
+            const updatedDoc = {
+                $set: data,
             };
             const result = await productCollection.updateOne(filter,updatedDoc,options);
             res.send(result);
@@ -162,3 +182,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`As_Sunnah is running on ${port}`)
 })
+ 
