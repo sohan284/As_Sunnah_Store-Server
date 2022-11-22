@@ -35,18 +35,33 @@ async function run(){
         const productCollection = client.db('as_sunnah').collection('products');
         const cartCollection = client.db('as_sunnah').collection('cart');
         const userCollection = client.db('as_sunnah').collection('users');
+        const reviewCollection = client.db('as_sunnah').collection('reviews');
   
   
         // ****************   Product  ***************
         app.get('/product',async(req,res)=>{
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
             const query = {};
             const cursor = productCollection.find(query);
-            const products = await cursor.toArray();
+            let products;
+            if(page || size){
+                 products = await cursor.skip(page * size).limit(size).toArray();
+            }
+            else{
+                 products = await cursor.toArray();
+            }
+           
             res.send(products);
+        })
+        app.get('/productCount',async(req,res)=>{
+            const query = {};
+            const cursor = productCollection.find(query);
+            const count = await cursor.count();
+            res.send({count});
         })
         app.post('/product',async(req,res)=>{
             const newProduct = req.body;
-            console.log(newProduct)
             const result = await productCollection.insertOne(newProduct);
             res.send(result);
         });
@@ -57,14 +72,12 @@ async function run(){
             res.send(result);
         }) 
         app.get('/product/:id',async(req,res)=>{
-            const id = req.params.id;
-            const query = {_id: ObjectId(id)};
-            const product = await productCollection.findOne(query);
+            const product = await productCollection.findOne({_id: ObjectId(req.params.id)});
             res.send(product);
         })
+
         app.put('/product/:id',async(req,res)=>{
             const id = req.params.id;
-            console.log(req.body)
             const data = req.body;
             const filter = {_id: ObjectId(id)};
             const options = {upsert:true};
@@ -79,7 +92,6 @@ async function run(){
         })
         app.put('/product/manage/:id',async(req,res)=>{
             const id = req.params.id;
-            console.log(req.body)
             const data = req.body;
             const filter = {_id: ObjectId(id)};
             const options = {upsert:true};
@@ -91,12 +103,11 @@ async function run(){
         })
 
    // ****************   Cart  ***************
-        app.get('/cart',async (req,res)=>{
-            const query = {};  
-            const cursor = cartCollection.find(query);
-            const cart = await cursor.toArray();
+        app.get('/cart',async (req,res)=>{  
+            const cart = await cartCollection.find().toArray();
             res.send(cart);
          })
+
          app.post('/cart',async (req,res)=>{
             const cart = req.body;
             const result = await cartCollection.insertOne(cart);
@@ -125,11 +136,9 @@ async function run(){
          app.delete('/user/:id',async (req,res)=>{
             const id = req.params.id
             const query = {_id: ObjectId(id)};
-            console.log(query)
             const result = await userCollection.deleteOne(query);
             res.send(result);
         }) 
-
          app.put('/user/:email',async(req,res)=>{
             const email = req.params.email;
             const user = req.body;
@@ -168,6 +177,24 @@ async function run(){
             }
           
         })
+        //********************** reviews ***********/
+        app.get('/review',async(req,res)=>{ 
+            const reviews = await reviewCollection.find().toArray();
+            res.send(reviews);
+        })
+        app.get('/review/:id',async(req,res)=>{ 
+            const id = req?.params?.id;
+            const query = { id: id };
+            const cursor =reviewCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post('/review',async(req,res)=>{
+            const newReview = req.body;
+            const result = await reviewCollection.insertOne(newReview);
+            res.send(result);
+        });
     }
     finally{
 
