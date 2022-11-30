@@ -36,6 +36,7 @@ async function run(){
         const cartCollection = client.db('as_sunnah').collection('cart');
         const userCollection = client.db('as_sunnah').collection('users');
         const reviewCollection = client.db('as_sunnah').collection('reviews');
+        const orderCollection = client.db('as_sunnah').collection('orders');
   
   
         // ****************   Product  ***************
@@ -126,6 +127,12 @@ async function run(){
             const result = await cartCollection.deleteOne(query);
             res.send(result);
         })  
+        app.delete('/cart/order/:mail',async (req,res)=>{
+            const user = req?.params?.mail;
+            const query = {user : user};
+            const result = await cartCollection.deleteMany(query);
+            res.send(result);
+        })  
         
         
    // ****************   User ***************
@@ -195,6 +202,31 @@ async function run(){
             const result = await reviewCollection.insertOne(newReview);
             res.send(result);
         });
+
+
+         //********************** orders ***********/
+         app.get('/order',async(req,res)=>{ 
+            const orders = await orderCollection.find().toArray();
+            res.send(orders);
+        })
+        app.get('/order/:mail',async(req,res)=>{
+            const email = req?.params?.mail;
+            const query = { user: email };
+            const cursor =orderCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+         app.post('/order',async(req,res)=>{
+            const newOrder = req.body;
+            const result = await orderCollection.insertOne(newOrder);
+            res.send(result);
+        });
+        app.delete('/order/:id',async (req,res)=>{
+            const id = req.params.id
+            const query = {_id: ObjectId(id)};
+            const result = await orderCollection.deleteOne(query);
+            res.send(result);
+        }) 
     }
     finally{
 
